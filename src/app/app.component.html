@@ -1,0 +1,29 @@
+<input type="file" appReadexcel  #readexcel="readexcel" (eventEmitter)="DataFromEventEmitter($event)" />
+<!--
+<ul *ngFor="let n of readexcel.excelObservable | async">
+  <li>{{ n.ID }}</li>
+</ul>
+-->
+<!--
+<table class="imp">
+  <tbody>
+    <tr *ngFor="let row of readexcel.excelObservable | async">
+    <td *ngFor="let val of row">
+      <p *ngFor=" let h of readexcel.headers"> {{h}} </p> 
+      {{val}}
+    </td>
+
+  </tr>
+  </tbody>
+</table>
+-->
+<div >
+  <table>        
+    <tr *ngFor="let row of readexcel.excelObservable | async; index as i">
+      <td *ngFor="let val of row; index as j"> 
+        <p *ngIf="i==0;else table_data">{{readexcel.headers[j]}}</p>
+        <ng-template #table_data>{{val}}</ng-template>
+      </td>
+</tr>
+  </table>
+</div>
