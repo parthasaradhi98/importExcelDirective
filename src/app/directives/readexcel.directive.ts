@@ -1,5 +1,5 @@
 import { createOfflineCompileUrlResolver } from '@angular/compiler';
-import { Directive, HostListener, Output, EventEmitter } from '@angular/core';
+import { Directive, HostListener, Output, EventEmitter, ElementRef, ɵCompiler_compileModuleAndAllComponentsSync__POST_R3__} from '@angular/core';
 import { Observable, Subscriber } from 'rxjs';
 import * as XLSX from 'xlsx';
 
@@ -11,15 +11,28 @@ import * as XLSX from 'xlsx';
 export class ReadexcelDirective {
   excelObservable: Observable<any>;
   @Output() eventEmitter = new EventEmitter();
-   isPresent:boolean = false;
+ 
    
  constructor() {}
- 
-  headers: Array <string> = ["Id","Description","Display pic","document attachments","Group", "location"," name", "price","product model number","purchased on"," Retire", "Retired on", "salvage value"," sub group","vendor"];
+ headers: Array <string> = ["Id","Description","Display pic","document attachments","Group", "location"," name", "price","product model number","purchased on"," Retire", "Retired on", "salvage value"," sub group","vendor"];
+ //columns : Array <string> =[];
+
+
+// var columns:string[];
+
+
+ /*for(let i=0; i < headers.length(); i++)
+  {
+    columns.push('col'+{i} );
+      
+  }
+*/
+  headerArray: Array <string> = [];
+
   @HostListener('change', ['$event.target'])
   onChange(target: HTMLInputElement) {
     const file = target.files[0];
-    
+
     this.excelObservable = new Observable((subscriber: Subscriber<any>) => {
       this.readFile(file, subscriber);
     });
@@ -29,10 +42,19 @@ export class ReadexcelDirective {
     });
   }
 
+ /* getHeaderArray(keys) {
+    let headerArray = [];
+    for( let j=0; j< keys.length; j++)
+    {
+    headerArray.push(keys[j]);
+    }
+    console.log("Hello",this.myArray);
+    return headerArray;
+  }*/
+
   readFile(file: File, subscriber: Subscriber<any>) {
     
     const fileReader = new FileReader();
-    this.isPresent=true;
     var Ext= file.name.split('.')[1]; 
     console.log(Ext);
     if( Ext == "csv")
@@ -53,11 +75,20 @@ export class ReadexcelDirective {
         return obj[key];
       });
     });
+    
+ 
     var keys = Object.keys(data[0]);
     output.unshift(keys);
-  
-console.log("data",output);
 
+    console.log("headers",keys);
+    
+  for( let j=0; j< keys.length; j++)
+    {
+    this.headerArray.push(keys[j]);
+    }
+   
+    console.log("headerarray" ,this.headerArray);
+console.log("data",output);
     subscriber.next(output);
     subscriber.complete();
   };
