@@ -1,33 +1,22 @@
-import { createOfflineCompileUrlResolver } from '@angular/compiler';
-import { Directive, HostListener, Output, EventEmitter, ElementRef, ɵCompiler_compileModuleAndAllComponentsSync__POST_R3__} from '@angular/core';
+import { Directive, HostListener, Output, EventEmitter } from '@angular/core';
 import { Observable, Subscriber } from 'rxjs';
 import * as XLSX from 'xlsx';
 
 @Directive({
   selector: '[appReadexcel]',
-  exportAs : 'readexcel' ,
+  exportAs: 'readexcel',
 })
- 
+
 export class ReadexcelDirective {
   excelObservable: Observable<any>;
   @Output() eventEmitter = new EventEmitter();
- 
-   
- constructor() {}
- headers: Array <string> = ["Id","Description","Display pic","document attachments","Group", "location"," name", "price","product model number","purchased on"," Retire", "Retired on", "salvage value"," sub group","vendor"];
- //columns : Array <string> =[];
 
 
-// var columns:string[];
+  constructor() { }
+  headers: Array<string> = ["Id", "Description", "Display pic", "document attachments", "Group", "location", " name", "price", "product model number", "purchased on", " Retire", "Retired on", "salvage value", " sub group", "vendor"];
+  columns: Array<string> = ["col1", "col2", "col3", "col4", "col5", "col6", "col7", "col8", "col9", "col10", "col11", "col12", "col13", "col14", "col15"];
 
-
- /*for(let i=0; i < headers.length(); i++)
-  {
-    columns.push('col'+{i} );
-      
-  }
-*/
-  headerArray: Array <string> = [];
+  headerArray: Array<string> = [];
 
   @HostListener('change', ['$event.target'])
   onChange(target: HTMLInputElement) {
@@ -42,85 +31,66 @@ export class ReadexcelDirective {
     });
   }
 
- /* getHeaderArray(keys) {
-    let headerArray = [];
-    for( let j=0; j< keys.length; j++)
-    {
-    headerArray.push(keys[j]);
-    }
-    console.log("Hello",this.myArray);
-    return headerArray;
-  }*/
-
   readFile(file: File, subscriber: Subscriber<any>) {
-    
+
     const fileReader = new FileReader();
-    var Ext= file.name.split('.')[1]; 
+    var Ext = file.name.split('.')[1];
     console.log(Ext);
-    if( Ext == "csv")
-    {
-    fileReader.readAsText(file);
-    fileReader.onload = (e) => {
-    const bufferArray = e.target.result;
-     
-    const wb: XLSX.WorkBook = XLSX.read(bufferArray, { type: 'string' });
-    const wsname: string = wb.SheetNames[0];
+    if (Ext == "csv") {
+      fileReader.readAsText(file);
+      fileReader.onload = (e) => {
+        const bufferArray = e.target.result;
 
-    const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+        const wb: XLSX.WorkBook = XLSX.read(bufferArray, { type: 'string' });
+        const wsname: string = wb.SheetNames[0];
 
-    const data = XLSX.utils.sheet_to_json(ws);
-    
-    var output = data.map(function(obj) {
-      return Object.keys(obj).map(function(key) { 
-        return obj[key];
-      });
-    });
-    
- 
-    var keys = Object.keys(data[0]);
-    output.unshift(keys);
+        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-    console.log("headers",keys);
-    
-  for( let j=0; j< keys.length; j++)
-    {
-    this.headerArray.push(keys[j]);
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        var output = data.map(function (obj) {
+          return Object.keys(obj).map(function (key) {
+            return obj[key];
+          });
+        });
+
+        var keys = Object.keys(data[0]);
+        output.unshift(keys);
+
+        for (let j = 0; j < keys.length; j++) {
+          this.headerArray.push(keys[j]);
+        }
+
+        subscriber.next(output);
+        subscriber.complete();
+      };
     }
-   
-    console.log("headerarray" ,this.headerArray);
-console.log("data",output);
-    subscriber.next(output);
-    subscriber.complete();
-  };
-}
-    else 
-    {
+    else {
       fileReader.readAsArrayBuffer(file);
       fileReader.onload = (e) => {
         const bufferArray = e.target.result;
-    
-       const wb: XLSX.WorkBook = XLSX.read(bufferArray, { type: 'buffer' });
 
-      const wsname: string = wb.SheetNames[0];
+        const wb: XLSX.WorkBook = XLSX.read(bufferArray, { type: 'buffer' });
 
-      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+        const wsname: string = wb.SheetNames[0];
 
-      const data = XLSX.utils.sheet_to_json(ws);
+        const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-      var output = data.map(function(obj) {
-        return Object.keys(obj).map(function(key) { 
-          return obj[key];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        var output = data.map(function (obj) {
+          return Object.keys(obj).map(function (key) {
+            return obj[key];
+          });
         });
-      });
-     var keys = Object.keys(data[0]);
-      output.unshift(keys);
+        var keys = Object.keys(data[0]);
+        output.unshift(keys);
 
-console.log("data",output);
-      subscriber.next(output);
-      subscriber.complete();
-    };
+        subscriber.next(output);
+        subscriber.complete();
+      };
+    }
   }
 }
-}
 
-   
+
